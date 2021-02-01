@@ -1,4 +1,14 @@
+# VS Code
 *code-workspace
-env/
 .vscode/
+# Python
+penv/
 .ipynb_checkpoints
+# R
+renv/
+*.Rproj
+*.Rproj.user
+*.RData
+*.Rhistory
+*.Rprofile
+.Rproj.user
