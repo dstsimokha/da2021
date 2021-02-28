@@ -5,7 +5,9 @@ Quantitative Data Analysis for Modern Social Analysis masters
 
 [link to the GitHub Page](https://dstsimokha.github.io/)
 
-  - **hw#5**: on multinomial regression - [report](sem5/hw5-r.html)
+  - **hw#6**: on models for count data - [report](sem6/hw6-r.html)
+
+  - **hw#5**: on ordinal logit regression - [report](sem5/hw5-r.html)
 
   - **test#1**: with 2 tasks - [report](test1/test1.html)
 

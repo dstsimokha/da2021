@@ -1,0 +1,111 @@
+---
+title: "hw6"
+author: "Dmitriy Tsimokha"
+date: "2/28/2021"
+output: 
+  html_document: 
+    fig_width: 10
+    fig_height: 7
+---
+
+1.  Get data from read.dta("[https://stats.idre.ucla.edu/stat/stata/dae/nb_data.dta"](https://stats.idre.ucla.edu/stat/stata/dae/nb_data.dta"):));
+
+    -   *gender* -- gender of the respondent (female, male)
+    -   *math* -- score on math test
+    -   *daysabs* -- number of days absent
+    -   *prog* -- type of program\
+        *(use as factor; 1 -- vocational, 2 -- general, 3 -- academic)*
+
+2.  Predict **math test scored** by *gender*, *number of missed days* and the *program type*
+
+3.  Test for **overdispersion** and **zero-inflation**.\
+    Choose the appropriate model
+
+4.  Interpret the coefficients
+
+5.  Look at the model fit
+
+```{r}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+library(foreign)
+df <- read.dta("https://stats.idre.ucla.edu/stat/stata/dae/nb_data.dta")
+df$prog <- as.factor(df$prog)
+df <- na.omit(df)
+```
+
+## Predict math test scored by gender, number of missed days and the program type.
+
+```{r}
+mpois = glm(math ~ gender + daysabs + prog, data = df, family = poisson)
+summary(mpois)
+```
+
+All p-values for regressors show significant influence - *that's great*
+
+## Test for overdispersion and zero-inflation.
+
+```{r}
+library(AER)
+# linear
+dispersiontest(mpois, trafo = 1)
+```
+
+Mean and variance are not equal and overdispersion is definitely exists in the model.
+
+```{r}
+# quadratic
+dispersiontest(mpois, trafo = 2)
+```
+
+Looks like better to choose quadratic relationship model.
+
+Basing on overdispersion and zero-inflation tests I prefer to choose quadratic model.
+
+```{r}
+fm_qpois <- glm(math ~ gender + daysabs + prog, data = df, family = quasipoisson)
+fm_nb <- MASS::glm.nb(math ~ gender + daysabs + prog, data = df)
+library(texreg)
+screenreg(list(mpois, fm_qpois, fm_nb))
+```
+
+But now looks like that **NB** is even better than quadratic!
+
+```{r zero-inflation}
+library(vcdExtra)
+zero.test(table(df$math))
+```
+
+Zero-inflation test looks very strange 🤔
+
+```{r}
+sum(df$math==0)
+```
+
+So my dataframe does not contain any zeros, *I have zero of zeros in dependent variable* - **zero-inflation** is not applicable.
+
+## Interpreting coefficients
+
+```{r}
+library(mfx)
+negbinmfx(math ~ gender + daysabs + prog, data = df)
+```
+
+-   **gender**: \
+    🔽 men have **2.23**% lower *scores on math* than women
+
+-   **daysabs**: \
+    🔽 every additional day of absence decreases the score on math by **0.75**%
+
+-   **prog**:\
+    🔽 for '**general**' type of program in comparison with 'vocational' type the score on math decreases by **4.8**%\
+    🔼 for '**academic**' type of program in comparison with 'vocational' type the score on math increases by **7.5**%
+
+## Model fit
+
+```{r}
+library(pscl)
+t(pR2(fm_nb))
+```
+
+McFadden's pseudo R\^2 shows that\
+*in terms of fitness you have no fitness* 😒
