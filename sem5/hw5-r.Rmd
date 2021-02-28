@@ -7,6 +7,13 @@ output:
     fig_width: 10
     fig_height: 7
 ---
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 20px;
+  }
+</style>
+---
 
 Use data frame '*uk'* from '*seminar2 (2).RData*'
 
