@@ -1,14 +1,10 @@
-# VS Code
-*code-workspace
-.vscode/
-# Python
-penv/
-.ipynb_checkpoints
-# R
-renv/
+.Rhistory
+.Rprofile
+.Rproj.user/
 *.Rproj
-*.Rproj.user
-*.RData
-*.Rhistory
-*.Rprofile
-.Rproj.user
+*.code-workspace
+.vscode/
+penv/
+renv/
+.ipynb_checkpoints
+statsmodels

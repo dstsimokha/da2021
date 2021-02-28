@@ -1,0 +1,126 @@
+---
+title: "hw5"
+author: "Dmitriy Tsimokha"
+date: "2/28/2021"
+output: 
+  html_document: 
+    fig_width: 10
+    fig_height: 7
+---
+
+Use data frame '*uk'* from '*seminar2 (2).RData*'
+
+The variables are:
+
+-   ***polintr***: how interested in politics;\
+    from *1 - Not at all interested* to *4 - Very interested*
+
+-   ***age***: age of the respondent
+
+-   ***sex***: gender of the respondent
+
+-   ***edu***: age when completed education
+
+-   ***income1***: income group
+
+Fulfill the following tasks:
+
+1.  Predict **interest in politics** by *age*, *gender*, *education* and *income grou*p.
+2.  Interpret the coefficients.
+3.  Tell if the model fits data well.
+4.  Visualize the link between interest in politics and age when respondent completed education.
+
+```{r}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+load('seminar2 (2).RData')
+```
+
+## Predict interest in politics by age, gender, education and income group
+
+```{r}
+library(MASS)
+m1 = polr(polintr ~ age + sex + edu + income1, data = uk, Hess=T)
+summary(m1)  # logit
+```
+
+```{r eval=FALSE, include=FALSE}
+m2 = polr(polintr ~ age + sex + edu + income1, data = uk, method = "probit")
+summary(m2)  # probit
+```
+
+## Interpret the coefficient
+
+```{r eval=FALSE, include=FALSE}
+exp(coef(m1))  # logit
+```
+
+Better to interpret only AME coefficients:
+
+```{r}
+library(knitr)
+#Marginal effects
+library(erer)
+#ocME(m1)  # logit
+kable(ocME(m1)$out$ME.all*100)  # in percent
+```
+
+-   **age**: each year the probability of being...
+
+    -   🔽 '*Not at all interested*' in politics in comparison with other options decreases by **0.3**%
+    -   🔽 '*Not at all interested*' or '*Hardly interested*' in politics in comparison with other options decreases by **0.2**%
+    -   🔼 '*Not at all interested*', '*Hardly interested*' or '*Quite interested*' in politics in comparison with being '*Very interested*' increases by **0.3**%
+    -   🔼 '*Very interested*' in politics in comparison with all previous options increases by **0.2**%
+
+-   **sex**: for women the probability of being...
+
+    -   🔼 '*Not at all interested*' in politics compared to other options is **6.7**% higher than for men
+    -   🔼 '*Not at all interested*' or '*Hardly interested*' in politics compared to other options is **5.1**% higher than for men
+    -   🔽 '*Not at all interested*', '*Hardly interested*' or '*Quite interested*' in politics compared to being '*Very interested*' is **7.3**% lower than for men
+    -   🔽 '*Very interested*' in politics in compared with all previous options is **4.5**% lower than for men
+
+-   **edu**: each year the probability of being...
+
+    -   🔽 '*Not at all interested*' in politics in comparison with other options decreases by **1.9**%
+    -   🔽 '*Not at all interested*' or '*Hardly interested*' in politics in comparison with other options decreases by **1.5**%
+    -   🔼 '*Not at all interested*', '*Hardly interested*' or '*Quite interested*' in politics in comparison with being '*Very interested*' increases by **2.2**%
+    -   🔼 '*Very interested*' in politics in comparison with all previous options increases by **1.3**%
+
+-   **income1**: per each increase in income group the probability of being...
+
+    -   🔽 '*Not at all interested*' in politics in comparison with other options decreases by **1.5**%
+
+    -   🔽 '*Not at all interested*' or '*Hardly interested*' in politics in comparison with other options decreases by **1.2**%
+
+    -   🔼 '*Not at all interested*', '*Hardly interested*' or '*Quite interested*' in politics in comparison with being '*Very interested*' increases by **1.7**%
+
+    -   🔼 '*Very interested*' in politics in comparison with all previous options increases by **1.0**%
+
+```{r eval=FALSE, include=FALSE}
+#ocME(m2)  # probit
+kable(ocME(m2)$out$ME.all)
+```
+
+## Tell if the model fits data well
+
+```{r}
+library(pscl)
+t(pR2(m1))
+```
+
+Model seems to be obsolete to predict anything - McFadden's pseudo R\^2 equals to 0.05 which is too low - *what a shame*.
+
+```{r}
+hitmiss(m1)
+```
+
+So model with predictors is just slightly better than null model and guess even worse than random guessing - *that's a pity*.
+
+## Visualize the link between interest in politics and age respondent completed education
+
+```{r}
+library(sjPlot)
+plot_model(m1, type = "emm", terms = "age", title = 'Logit')
+#plot_model(m2, type = "emm", terms = "age", title = 'Probit')
+```
+
+Relationship of **age** and **polintr** looks like *linear-ish* and people with age tends to be more interested in politics.

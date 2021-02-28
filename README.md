@@ -5,6 +5,8 @@ Quantitative Data Analysis for Modern Social Analysis masters
 
 [link to the GitHub Page](https://dstsimokha.github.io/)
 
+  - **hw#5**: on multinomial regression - [report](sem5/hw5-r.html)
+
   - **test#1**: with 2 tasks - [report](test1/test1.html)
 
   - **hw#4**: on multinomial regression - [report](sem4/hw4-py.html)
