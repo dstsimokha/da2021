@@ -1,0 +1,203 @@
+---
+title: "hw7"
+author: "Dmitriy Tsimokha"
+date: "08.03.2021"
+output: 
+  html_document:
+    fig_width: 10
+    fig_height: 7
+---
+
+```{=html}
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 20px;
+  }
+</style>
+```
+
+::: {.flowers aria-hidden="true"}
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+
+::: {.flower}
+🌸
+:::
+:::
+
+```{css echo = FALSE}
+/*Source: https://codepen.io/codeconvey/pen/xRzQay*/
+.flower {
+  font-size: 50px;
+  font-family: Arial;
+  text-shadow: 0 0 1px #000;
+}
+@-webkit-keyframes flowers-fall{0%{top:-10%}100%{top:100%}}
+@-webkit-keyframes flowers-shake{
+    0%{-webkit-transform:translateX(0px);transform:translateX(0px)}
+   50%{-webkit-transform:translateX(80px);transform:translateX(80px)}
+  100%{-webkit-transform:translateX(0px);transform:translateX(0px)}}
+@-webkit-keyframes rotation {
+    0% {-webkit-transform:rotate(0deg); transform:rotate(0deg)}
+    100% {-webkit-transform:rotate(360deg);transform:rotate(360deg)}
+}
+@keyframes flowers-fall{
+    0%{top:-10%}
+  100%{top:100%}}
+@keyframes flowers-shake{
+    0%{transform:translateX(0px)}
+   50%{transform:translateX(80px)}
+  100%{transform:translateX(0px)}}
+@keyframes rotation {
+    0% {transform:rotate(0deg)}
+    100% {transform:rotate(360deg)}
+}
+.flower{
+  position:fixed;
+  top:-10%;
+  z-index:9999;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  cursor:default;
+  -webkit-animation-name:flowers-fall,flowers-shake,rotation;
+  -webkit-animation-duration:10s,3s,10s;
+  -webkit-animation-timing-function:linear,ease-in-out,linear;
+  -webkit-animation-iteration-count:infinite,infinite,infinite;
+  -webkit-animation-play-state:running,running,running;
+  animation-name:flowers-fall,flowers-shake,rotation;
+  animation-duration:10s,3s,10s;
+  animation-timing-function:linear,ease-in-out,linear;
+  animation-iteration-count:infinite,infinite,infinite;
+  animation-play-state:running,running,running}
+.flower:nth-of-type(0){left: 1%;-webkit-animation-delay:  0s,  0s;animation-delay:  0s,  0s}
+.flower:nth-of-type(1){left:10%;-webkit-animation-delay:  1s,  1s;animation-delay:  1s,  1s}
+.flower:nth-of-type(2){left:20%;-webkit-animation-delay:  6s,0.5s;animation-delay:  6s,0.5s}
+.flower:nth-of-type(3){left:30%;-webkit-animation-delay:  4s,  2s;animation-delay:  4s,  2s}
+.flower:nth-of-type(4){left:40%;-webkit-animation-delay:  2s,  2s;animation-delay:  2s,  2s}
+.flower:nth-of-type(5){left:50%;-webkit-animation-delay:  8s,  3s;animation-delay:  8s,  3s}
+.flower:nth-of-type(6){left:60%;-webkit-animation-delay:  6s,  2s;animation-delay:  6s,  2s}
+.flower:nth-of-type(7){left:70%;-webkit-animation-delay:2.5s,  1s;animation-delay:2.5s,  1s}
+.flower:nth-of-type(8){left:80%;-webkit-animation-delay:  1s,  0s;animation-delay:  1s,  0s}
+.flower:nth-of-type(9){left:90%;-webkit-animation-delay:  3s,1.5s;animation-delay:  3s,1.5s}
+```
+
+# C 8 марта, Виолетта!
+
+```{r}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+library(lme4); library(texreg); library(sjstats); library(sjPlot)
+load('Europe2.RData')
+load('imm23.RData')
+```
+
+• Vary the effect of parents' education among the schools. Check if the
+
+random slope model is better.
+
+```{r}
+# null model
+m0 = lmer(MATH ~ 1|SCHID, data = data)
+summary(m0)
+```
+
+```{r}
+m1 = lmer(MATH~SES+WHITE+HOMEWORK+PARENTED+SEX+(1|SCHID), data = data)
+m2 = lmer(MATH~SES+WHITE+HOMEWORK+PARENTED+SEX+(1+PARENTED|SCHID), data = data)
+anova(m1, m2)
+```
+
+Random slope model for PARENTED is better - p-value \< 0.5
+
+• Check if the type of school affects the results in math.
+
+```{r}
+m3 = lmer(MATH~SES+WHITE+HOMEWORK+PARENTED+SEX+PUBLIC+(1+PARENTED|SCHID), data = data)
+screenreg(m3)
+```
+
+Type of school has no significant effect on math.
+
+• Check if the effect of parental education differs depending on the
+
+school type.
+
+```{r}
+m4 = lmer(MATH~SES+WHITE+HOMEWORK+PARENTED+SEX+MEANSES+PARENTED*PUBLIC+(1+PARENTED|SCHID), data = data)
+screenreg(m4)
+```
+
+Interaction effect of parental education and school type is not significant.
+
+• Indicate which school has the lowest impact of parents' education.
+
+```{r}
+# random effects
+re <- ranef(m2)
+# add beta from model to HOMEWORK to obtain true beta-coef per school
+re$SCHID$PARENTED = 2.53+re$SCHID$PARENTED
+re$SCHID[which.min(abs(re$SCHID$PARENTED - 0)),]
+```
+
+School with ID 62821 has the lowest impact of parent's education
+
+• Plot the effects of your final model.
+
+```{r}
+# fixed effects
+plot_model(m2, type = 'est')
+```
+
+```{r}
+# random effects
+plot_model(m2, type = 're', sort.est = 'PARENTED')
+```
+
+• Plot the interaction term and comment on the results
+
+```{r}
+plot_model(m4, type = "pred", terms = c("PARENTED", "PUBLIC"))
+```
+
+**Interaction effect is not significant** nevertheless seems that for public schools parental education have greater slope and increase in parental education can cause greater increase in math while intercept is slightly lower.
+
+• Calculate R2.
+
+```{r}
+performance::r2(m2)
+```
