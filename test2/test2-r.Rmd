@@ -1,0 +1,111 @@
+---
+title: "hw6"
+author: "Dmitriy Tsimokha"
+date: "2/28/2021"
+output: 
+  html_document:
+    fig_width: 10
+    fig_height: 7
+---
+
+```{=html}
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 20px;
+  }
+</style>
+```
+```{r}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
+load('test_2.RData')
+```
+
+# Task 1
+
+*test_2.RData* contains data frame *'culture'* which includes the following variables:
+
+-   c.act.n -- number of cultural activities that the respondents participated in the last 12 months
+
+-   gender -- gender of the respondent
+
+-   age -- age in years
+
+-   edu -- age when completed education
+
+-   bill -- if the respondent has difficulties paying bills
+
+-   commun -- area of residence
+
+-   country -- country where the respondent lives
+
+1.  Choose only observations from **Bulgaria**.
+2.  Choose an appropriate model to predict the number of cultural activities by gender, age, education, problems paying bills, and area of residence.
+3.  Interpret the coefficients, comment on the results.
+4.  Check model fit, comment on the results.
+
+```{r}
+df <- culture[culture$country=='Bulgaria',]
+```
+
+```{r}
+# nothing can be better than usial OLS model
+model <- lm(data = df, formula = 'c.act.n ~ gender + age + edu + bill + commun')
+summary(model)
+```
+
+Overall, model has moderate prediction \~ **0.31**.
+
+Only for *Small/middle town* coefficient is insignificant, all other predictors doing their jobs quite well:
+
+-   🔼 for **females** number of attended cultural activities **higher** on **0.57**
+
+-   🔽 for **each additional year of age** number of attended cultural events **lowers** for **0.03**
+
+-   🔼 for **each additional year of education** number of attended cultural events **highers** for **0.2**
+
+-   🔼 those who **doesn't have problems with bill paying** have number of attended cultural events **higher** on **0.7** in comparison with those who have such problems (*maybe because of amount of free money to spend?*)
+
+-   🔼 and for **people from large towns** number of attended cultural events **higher** on **1.15** (*supposedly because of amount, variety and availability of such events in big towns*)
+
+# Task 2
+
+*test_2.RData* contains data frame *'ess'* which includes the following variables:
+
+-   *atcherp* -- And how emotionally attached do you feel to Europe: 1- Not at all emotionally attached, 11 -- Very emotionally attached
+
+-   *age* -- age of the respondent in years
+
+-   *incdcl* -- income decile: 1 - the lowest decile, 10 -- the highest
+
+-   *gndr* -- gender of the respondent: male, female
+
+-   *cntry* -- country
+
+-   *gdp* -- GDP per capita
+
+1.  Specify the empty model of the attachment to Europe varying by
+    country. Calculate ICC. Do the views vary considerably across the
+    countries?
+2.  Include individual level predictors into your model. Interpret the
+    coefficients.
+3.  Randomize the coefficient for income. Do the coefficients vary across
+    the countries? Consider variable transformations if necessary.
+4.  Include GDP per capita into the model. Consider transformation of
+    this variable. Interpret the result.
+5.  Check if the effect of income differs depending on the country
+    economic development.
+6.  Visualize the effects in the final model. Interpret the results.
+7.  Check if the model fits the data well.
+
+```{r}
+library(lme4); library(texreg); library(sjstats); library(sjPlot)
+```
+
+```{r}
+# null model
+m0 = lmer(atcherp ~ 1|cntry, data = ess)
+summary(m0)
+```
+
+Violetta, sorry, I was trying to do the test while working and not succeeded with that - my people need me on the work :(
